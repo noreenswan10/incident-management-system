@@ -1,9 +1,14 @@
 'use client'
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import fetchAPI from "@/api/fetch";
 
 export default function Login() {
     const [username, setUsername] = useState<string>('');
     const [password, setPassword] = useState<string>('');
+    const [error, setError] = useState('');
+    const router = useRouter();
+    
     return(
         <div className="flex justify-center min-h-screen w-full items-center">
           <div className="w-1/4">
@@ -25,7 +30,7 @@ export default function Login() {
                 Password
               </label>
               <input
-                type="text"
+                type="password"
                 name="Password"
                 id="Password"
                 value={password}
