@@ -92,7 +92,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const hasHigherRole = userRoles?.some((role: any) =>
-    ["superadmin", "moderator", "admin"].includes(role)
+    ["admin", "technician"].includes(role)
   );
 
   const hasNormalRole = userRoles?.includes("user") || userRoles === null;
