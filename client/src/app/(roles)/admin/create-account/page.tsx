@@ -1,4 +1,3 @@
-'use client'
 import { useAuth } from "@/context/authcontext";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -21,8 +20,10 @@ export default function Page() {
     //   return <div>Youre not allowed to access this page.</div>;
     // }
     return(
-        <div className="flex justify-center mt-20">
-            <p className="text-3xl font-semibold">Welcome to Admin Panel of Incident Manangement System</p>
+        <div className="flex flex-col mt-5">
+            <h2 className="font-semibold text-2xl">
+                CREATE ACCOUNT
+            </h2>
         </div>
-    );
+    )
 }
