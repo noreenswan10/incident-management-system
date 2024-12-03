@@ -1,5 +1,6 @@
 "use client";
 import { useAuth } from "@/context/authcontext";
+import { createAccountSchema } from "@/validations/createaccountschema";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -12,6 +13,7 @@ export default function Page() {
   const [address, setAddress] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [role, setRole] = useState<"Technician" | "User">("User");
+  const [errors, setErrors] = useState<any>({});
 
   // const { isAuthenticated, loading, isLogout }: any = useAuth();
   // const router = useRouter();
@@ -29,11 +31,38 @@ export default function Page() {
   // if (!isAuthenticated && !isLogout) {
   //   return <div>Youre not allowed to access this page.</div>;
   // }
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const result = createAccountSchema.safeParse({
+      firstName,
+      middleName,
+      lastName,
+      email,
+      phoneNumber,
+      address,
+      password,
+      role,
+    });
+
+    if (!result.success) {
+      const errorMessages: any = {};
+      result.error.errors.forEach((err) => {
+        errorMessages[err.path[0]] = err.message;
+      });
+      setErrors(errorMessages);
+    } else {
+      console.log("Form is valid", result.data);
+      setErrors({});
+    }
+  };
+
   return (
     <div className="flex flex-col mt-5 ml-5">
       <h2 className="font-semibold text-2xl">CREATE ACCOUNT</h2>
       <div className="w-1/4">
-        <form>
+        <form onSubmit={handleCreate}>
           <div className="flex flex-col w-full mb-3">
             <label htmlFor="FirstName" className="font-semibold">
               First Name
@@ -46,7 +75,11 @@ export default function Page() {
               onChange={(e) => setFirstName(e.target.value)}
               className="border border-[#333] p-2 rounded-xl"
             />
+            {errors.firstName && (
+              <p className="text-red-600 text-sm">{errors.firstName}</p>
+            )}
           </div>
+
           <div className="flex flex-col w-full mb-3">
             <label htmlFor="MiddleName" className="font-semibold">
               Middle Name
@@ -59,9 +92,13 @@ export default function Page() {
               onChange={(e) => setMiddleName(e.target.value)}
               className="border border-[#333] p-2 rounded-xl"
             />
+            {errors.middleName && (
+              <p className="text-red-600 text-sm">{errors.middleName}</p>
+            )}
           </div>
+
           <div className="flex flex-col w-full mb-3">
-            <label htmlFor="MiddleName" className="font-semibold">
+            <label htmlFor="LastName" className="font-semibold">
               Last Name
             </label>
             <input
@@ -72,7 +109,11 @@ export default function Page() {
               onChange={(e) => setLastName(e.target.value)}
               className="border border-[#333] p-2 rounded-xl"
             />
+            {errors.lastName && (
+              <p className="text-red-600 text-sm">{errors.lastName}</p>
+            )}
           </div>
+
           <div className="flex flex-col w-full mb-3">
             <label htmlFor="Email" className="font-semibold">
               Email
@@ -85,7 +126,11 @@ export default function Page() {
               onChange={(e) => setEmail(e.target.value)}
               className="border border-[#333] p-2 rounded-xl"
             />
+            {errors.email && (
+              <p className="text-red-600 text-sm">{errors.email}</p>
+            )}
           </div>
+
           <div className="flex flex-col w-full mb-3">
             <label htmlFor="PhoneNumber" className="font-semibold">
               Phone Number
@@ -98,7 +143,11 @@ export default function Page() {
               onChange={(e) => setPhoneNumber(e.target.value)}
               className="border border-[#333] p-2 rounded-xl"
             />
+            {errors.phoneNumber && (
+              <p className="text-red-600 text-sm">{errors.phoneNumber}</p>
+            )}
           </div>
+
           <div className="flex flex-col w-full mb-3">
             <label htmlFor="Address" className="font-semibold">
               Address
@@ -111,9 +160,15 @@ export default function Page() {
               onChange={(e) => setAddress(e.target.value)}
               className="border border-[#333] p-2 rounded-xl"
             />
+            {errors.address && (
+              <p className="text-red-600 text-sm">{errors.address}</p>
+            )}
           </div>
+
           <div className="flex flex-col w-full mb-3">
-            <label htmlFor="role" className="font-semibold">Select Role:</label>
+            <label htmlFor="role" className="font-semibold">
+              Select Role:
+            </label>
             <select
               id="role"
               value={role}
@@ -123,7 +178,11 @@ export default function Page() {
               <option value="Technician">Technician</option>
               <option value="User">User</option>
             </select>
+            {errors.role && (
+              <p className="text-red-600 text-sm">{errors.role}</p>
+            )}
           </div>
+
           <div className="flex flex-col w-full mb-3">
             <label htmlFor="Password" className="font-semibold">
               Password
@@ -136,6 +195,9 @@ export default function Page() {
               onChange={(e) => setPassword(e.target.value)}
               className="border border-[#333] p-2 rounded-xl"
             />
+            {errors.password && (
+              <p className="text-red-600 text-sm">{errors.password}</p>
+            )}
           </div>
           <button
             type="submit"

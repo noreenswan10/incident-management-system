@@ -45,15 +45,11 @@ export default function IncidentReport() {
               <td className="px-6 py-4 text-sm font-medium text-gray-900">
                 {report.id}
               </td>
-              <td className="px-6 py-4 text-sm text-gray-700">
-                {report.category}
-              </td>
+              <td className="px-6 py-4 text-sm text-gray-700">{report.category}</td>
               <td className="px-6 py-4 text-sm text-gray-600">
                 {report.details}
               </td>
-              <td className="px-6 py-4 text-sm text-green-600">
-                {report.status}
-              </td>
+              <td className="px-6 py-4 text-sm text-green-600">{report.status}</td>
               <td className="px-6 py-4 text-sm">
                 <button className="text-blue-500 hover:text-blue-700 focus:outline-none">
                   Edit

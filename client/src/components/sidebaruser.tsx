@@ -42,7 +42,7 @@ const SidebarUser: React.FC<SidebarProps> = () => {
 
       <div className="flex flex-col w-full">
         <div className="flex flex-col mt-4 w-full">
-          <Link href="/technician">
+          <Link href="/user">
             <div className="flex items-center px-4 py-3 hover:bg-gray-700">
               <FaHome className="text-lg" />
               {!isCollapsed && <span className="ml-4">Home</span>}
