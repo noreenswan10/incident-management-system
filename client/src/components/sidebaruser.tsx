@@ -14,16 +14,9 @@ type SidebarProps = {};
 
 const SidebarUser: React.FC<SidebarProps> = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const { logout } = useAuth();
-  const router = useRouter();
 
   const handleToggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
-  };
-
-  const handleLogout = () => {
-    logout();
-    router.push("/login");
   };
 
   return (
@@ -67,7 +60,6 @@ const SidebarUser: React.FC<SidebarProps> = () => {
             </div>
           </Link>
           <div
-            onClick={handleLogout}
             className="cursor-pointer flex items-center px-4 py-3 hover:bg-gray-700"
           >
             <FaRightFromBracket className="text-lg" />

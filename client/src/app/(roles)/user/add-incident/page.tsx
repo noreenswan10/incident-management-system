@@ -10,22 +10,23 @@ const NoAccess = dynamic(() => import("@/components/noaccess"));
 export default function AddIncident() {
   const [category, setCategory] = useState<string>("");
   const [content, setContent] = useState<string>("");
-  const { accessToken } = useAuth();
+  const { isAuthenticated, loading, isLogout }: any = useAuth();
   const router = useRouter();
-  
-    useEffect(() => {
-      if (!accessToken) {
-        router.push("/login");
-      }
-    }, [accessToken, router]);
-  
-    if (!accessToken) {
-      return (
-        <>
-          <NoAccess />
-        </>
-      );
+
+  useEffect(() => {
+    if (!isAuthenticated && !loading) {
+      return router.push("/login");
     }
+  }, [isAuthenticated, loading, router]);
+
+  if (loading) {
+    return 'Loading...';
+  }
+
+  if (!isAuthenticated && !isLogout) {
+    return <NoAccess/>;
+  }
+  
   return (
     <div className="flex flex-col mt-5 ml-5">
       <div className="flex w-1/4 items-start justify-between">
