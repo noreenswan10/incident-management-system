@@ -91,12 +91,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }, 500);
   };
 
-  const hasHigherRole = userRoles?.some((role: any) =>
-    ["admin", "technician"].includes(role)
-  );
-
-  const hasNormalRole = userRoles?.includes("user") || userRoles === null;
-
   return (
     <AuthContext.Provider
       value={{
@@ -107,8 +101,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         user,
         userRoles,
         isLogout,
-        hasHigherRole,
-        hasNormalRole,
       }}
     >
       {children}
