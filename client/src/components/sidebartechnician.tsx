@@ -47,10 +47,10 @@ const SidebarTech: React.FC<SidebarProps> = () => {
               {!isCollapsed && <span className="ml-4">Home</span>}
             </div>
           </Link>
-          <Link href="/technician">
+          <Link href="/technician/incident-report">
             <div className="flex items-center px-4 py-3 hover:bg-gray-700">
               <FaSquarePlus className="text-lg" />
-              {!isCollapsed && <span className="ml-4">Add Incident</span>}
+              {!isCollapsed && <span className="ml-4">Incident Reports</span>}
             </div>
           </Link>
 
