@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { loginSchema } from "@/validations/loginschema";
 import fetchAPI from "@/api/fetch";
+import { accountdata } from "@/data/accountdata";
 
 export default function LoginForm(){
     const [username, setUsername] = useState<string>('');
@@ -38,15 +39,22 @@ const handleLogin = async (e: React.FormEvent) => {
         errorMessages[err.path[0] as keyof typeof errorMessages] = err.message;
       });
       setError(errorMessages);
-    } else {
-      try {
-        const response = await fetchAPI("/login", {
-          method: "POST",
-          body: JSON.stringify({ username, password }),
-        });
+      return;
+    } 
+    // else {
+    //   try {
+    //     const response = await fetchAPI("/login", {
+    //       method: "POST",
+    //       body: JSON.stringify({ username, password }),
+    //     });
 
-        if (response.ok) {
-          const userData = await response.json();
+        // if (response.ok) {
+        //   const userData = await response.json();
+        const userData = Object.values(accountdata).find(
+            (user) => user.firstName === username && user.password === password
+          );
+        
+        if (userData) {
 
           switch (userData.role) {
             case "Technician":
@@ -65,10 +73,10 @@ const handleLogin = async (e: React.FormEvent) => {
         } else {
           setError({ username: "Invalid username or password" });
         }
-      } catch (error) {
-        setError({ username: "An error occurred. Please try again later." });
-      }
-    }
+    //   } catch (error) {
+    //     setError({ username: "An error occurred. Please try again later." });
+    //   }
+    // }
   };
 
     return(

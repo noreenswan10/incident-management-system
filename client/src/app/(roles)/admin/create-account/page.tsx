@@ -15,22 +15,22 @@ export default function Page() {
   const [role, setRole] = useState<"Technician" | "User">("User");
   const [errors, setErrors] = useState<any>({});
 
-  // const { isAuthenticated, loading, isLogout }: any = useAuth();
-  // const router = useRouter();
+  const { isAuthenticated, loading, isLogout }: any = useAuth();
+  const router = useRouter();
 
-  // useEffect(() => {
-  //   if (!isAuthenticated && !loading) {
-  //     return router.push("/login");
-  //   }
-  // }, [isAuthenticated, loading, router]);
+  useEffect(() => {
+    if (!isAuthenticated && !loading) {
+      return router.push("/login");
+    }
+  }, [isAuthenticated, loading, router]);
 
-  // if (loading) {
-  //   return <div>Loading...</div>;
-  // }
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
-  // if (!isAuthenticated && !isLogout) {
-  //   return <div>Youre not allowed to access this page.</div>;
-  // }
+  if (!isAuthenticated && !isLogout) {
+    return <div>Youre not allowed to access this page.</div>;
+  }
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();

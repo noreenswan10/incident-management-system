@@ -1,29 +1,28 @@
 "use client";
+import { useAuth } from "@/context/authcontext";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaXmark } from "react-icons/fa6";
 
 export default function AddIncident() {
   const [category, setCategory] = useState<string>("");
   const [content, setContent] = useState<string>("");
+  const { isAuthenticated, loading, isLogout }: any = useAuth();
   const router = useRouter();
 
-  // const { isAuthenticated, loading, isLogout }: any = useAuth();
-  // const router = useRouter();
+  useEffect(() => {
+    if (!isAuthenticated && !loading) {
+      return router.push("/login");
+    }
+  }, [isAuthenticated, loading, router]);
 
-  // useEffect(() => {
-  //   if (!isAuthenticated && !loading) {
-  //     return router.push("/login");
-  //   }
-  // }, [isAuthenticated, loading, router]);
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
-  // if (loading) {
-  //   return <div>Loading...</div>;
-  // }
-
-  // if (!isAuthenticated && !isLogout) {
-  //   return <div>Youre not allowed to access this page.</div>;
-  // }
+  if (!isAuthenticated && !isLogout) {
+    return <div>Youre not allowed to access this page.</div>;
+  }
   return (
     <div className="flex flex-col mt-5 ml-5">
       <div className="flex w-1/4 items-start justify-between">

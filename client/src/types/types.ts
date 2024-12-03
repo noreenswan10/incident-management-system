@@ -6,6 +6,4 @@ export interface AuthContextType {
     loading: boolean;
     user: any;
     userRoles: any;
-    hasHigherRole: boolean;
-    hasNormalRole: boolean;
   }
