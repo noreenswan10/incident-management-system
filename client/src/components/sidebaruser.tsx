@@ -1,10 +1,10 @@
 "use client";
 import { useAuth } from "@/context/authcontext";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
   FaHome,
-  FaUser,
   FaAngleDoubleLeft,
   FaAngleDoubleRight,
 } from "react-icons/fa"; // Icons from react-icons
@@ -14,10 +14,16 @@ type SidebarProps = {};
 
 const SidebarUser: React.FC<SidebarProps> = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const { logout }: any = useAuth();
+  const { logout } = useAuth();
+  const router = useRouter();
 
   const handleToggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
+  };
+
+  const handleLogout = () => {
+    logout();
+    router.push("/login");
   };
 
   return (
@@ -61,7 +67,7 @@ const SidebarUser: React.FC<SidebarProps> = () => {
             </div>
           </Link>
           <div
-            onClick={() => logout()}
+            onClick={handleLogout}
             className="cursor-pointer flex items-center px-4 py-3 hover:bg-gray-700"
           >
             <FaRightFromBracket className="text-lg" />

@@ -1,43 +1,75 @@
 'use client'
+import fetchAPI from "@/api/fetch";
 import { registrationSchema } from "@/validations/registrationschema";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { FormEvent, useState } from "react";
 
 export default function RegistrationForm() {
     const [firstName, setFirstName] = useState<string>("");
     const [middleName, setMiddleName] = useState<string>("");
     const [lastName, setLastName] = useState<string>("");
     const [email, setEmail] = useState<string>("");
+    const [username, setUsername] = useState<string>('');
     const [phoneNumber, setPhoneNumber] = useState<string>("");
     const [address, setAddress] = useState<string>("");
     const [password, setPassword] = useState<string>("");
-    const [cpassword, setCpassword] = useState<string>("");
+    const [confirmPassword, setConfirmPassword] = useState<string>("");
     const [errors, setErrors] = useState<any>({});
+    const router = useRouter();
 
-    const handleRegister = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleRegister = async (e: FormEvent) => {
+      e.preventDefault();
     
-        const result = registrationSchema.safeParse({
-          firstName,
-          middleName,
-          lastName,
-          email,
-          phoneNumber,
-          address,
-          password,
-          cpassword,
+      // Assuming registrationSchema is a zod schema or similar
+      const result = registrationSchema.safeParse({
+        firstName,
+        middleName,
+        lastName,
+        email,
+        username,
+        phoneNumber,
+        address,
+        password,
+        confirmPassword,
+      });
+    
+      if (!result.success) {
+        const errorMessages: Record<string, string> = {};
+        result.error.errors.forEach((err) => {
+          errorMessages[err.path[0]] = err.message;
         });
-    
-        if (!result.success) {
-          const errorMessages: any = {};
-          result.error.errors.forEach((err) => {
-            errorMessages[err.path[0]] = err.message;
+        setErrors(errorMessages);
+      } else {
+        try {
+          const response = await fetchAPI('/auth/register', {
+            method: 'POST',
+            body: JSON.stringify({
+              firstName,
+              middleName,
+              lastName,
+              email,
+              phoneNumber,
+              address,
+              password,
+              confirmPassword,
+            }),
           });
-          setErrors(errorMessages);
-        } else {
-          console.log("Form is valid", result.data);
-          setErrors({});
+    
+          if (response.ok) {
+            const data = await response.json();
+            router.push('/login');
+            console.log('Registration successful', data);
+            setErrors({});
+          } else {
+            const errorData = await response.json();
+            setErrors({ server: errorData.message || 'Registration failed. Please try again.' });
+          }
+        } catch (error) {
+          console.error('Error registering', error);
+          setErrors({ server: 'Registration failed. Please try again.' });
         }
-      };
+      }
+    };
 
     return(
         <div className="w-1/4">
@@ -107,6 +139,22 @@ export default function RegistrationForm() {
           )}
         </div>
         <div className="flex flex-col w-full mb-3">
+          <label htmlFor="Username" className="font-semibold">
+            Username
+          </label>
+          <input
+            type="text"
+            name="Username"
+            id="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="border border-[#333] p-2 rounded-xl"
+          />
+          {errors.username && (
+            <p className="text-red-600 text-sm">{errors.username}</p>
+          )}
+        </div>
+        <div className="flex flex-col w-full mb-3">
           <label htmlFor="PhoneNumber" className="font-semibold">
             Phone Number
           </label>
@@ -162,8 +210,8 @@ export default function RegistrationForm() {
             type="password"
             name="Cpassword"
             id="Cpassword"
-            value={cpassword}
-            onChange={(e) => setCpassword(e.target.value)}
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
             className="border border-[#333] p-2 rounded-xl"
           />
           {errors.cpassword && (

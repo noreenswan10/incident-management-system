@@ -1,111 +1,66 @@
-"use client";
-
-import {
-  createContext,
-  useState,
-  useContext,
-  useEffect,
-  ReactNode,
-} from "react";
-import  Cookies from 'js-cookie'
-import { AuthContextType } from "@/types/types";
-import { useRouter } from "next/navigation";
-import fetchAPI from "@/api/fetch";
+'use client'
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import Cookies from 'js-cookie';
+import { accountdata } from '@/data/accountdata';
+import { AuthContextType } from '@/types/types';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [isLogout, setIsLogout] = useState<boolean>(false);
-  const [user, setUser] = useState<any>(null);
-  const [userRoles, setUserRoles] = useState<any>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const router = useRouter();
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [rememberToken, setRememberToken] = useState<string | null>(null);
+  const [user, setUser] = useState<any | null>(null);
 
   useEffect(() => {
-    const token = Cookies.get("APP-TOKEN");
-    const rememberToken = Cookies.get("APP-REMEMBER-TOKEN");
+    const savedAccessToken = Cookies.get('accessToken');
+    const savedRememberToken = Cookies.get('rememberToken');
+    const savedUser = Cookies.get('user') ? JSON.parse(Cookies.get('user') || '{}') : null;
 
-    if (token || rememberToken) {
-      fetchUserProfile();
-    } else {
-      setLoading(false);
-      setIsAuthenticated(false);
-    }
+    if (savedAccessToken) setAccessToken(savedAccessToken);
+    if (savedRememberToken) setRememberToken(savedRememberToken);
+    if (savedUser) setUser(savedUser);
   }, []);
 
-  const fetchUserProfile = async () => {
-    const token = Cookies.get("APP-TOKEN");
-    const rememberToken = Cookies.get("APP-REMEMBER-TOKEN");
+  const login = (email: string, password: string) => {
+    const foundUser = accountdata.find(account => account.email === email && account.password === password);
 
-    if (!token || !rememberToken) {
-      setIsAuthenticated(false);
-      setLoading(false);
-      setUser(null);
-      setUserRoles(null);
-      return;
+    if (foundUser) {
+      const newAccessToken = `mockAccessToken-${email}`;
+      const newRememberToken = `mockRememberToken-${email}`;
+
+      setAccessToken(newAccessToken);
+      setRememberToken(newRememberToken);
+      setUser(foundUser);
+
+      Cookies.set('accessToken', newAccessToken, { expires: 1 });
+      Cookies.set('rememberToken', newRememberToken, { expires: 365 });
+      Cookies.set('user', JSON.stringify(foundUser), { expires: 365 });
+    } else {
+      console.log("Invalid credentials");
     }
-
-    try {
-      const response = await fetchAPI("/auth/profile");
-      if (
-        response.data.statusCode === 200 &&
-        response.data.user.rememberToken === rememberToken
-      ) {
-        setUser(response.data.user);
-        setUserRoles(response.data.user.roles.map((role: any) => role.name));
-        setIsAuthenticated(true);
-      } else {
-        setIsAuthenticated(false);
-      }
-    } catch (error: any) {
-      console.error("Failed to fetch user profile", error);
-      setIsAuthenticated(false);
-      setUser(null);
-      setUserRoles(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const login = (token: string, rememberToken: string) => {
-    setIsAuthenticated(true);
-    Cookies.set("APP-TOKEN", token);
-    Cookies.set("APP-REMEMBER-TOKEN", rememberToken);
-    fetchUserProfile();
-    router.push("/dashboard");
   };
 
   const logout = () => {
-    setIsAuthenticated(false);
+    setAccessToken(null);
+    setRememberToken(null);
     setUser(null);
-    setIsLogout(true);
-    setUserRoles(null);
-    Cookies.remove("APP-TOKEN");
-    Cookies.remove("APP-REMEMBER-TOKEN");
 
-    router.push("/login");
-
-    setTimeout(() => {
-      setIsLogout(false);
-    }, 500);
+    Cookies.remove('accessToken');
+    Cookies.remove('rememberToken');
+    Cookies.remove('user');
   };
 
   return (
-    <AuthContext.Provider
-      value={{
-        isAuthenticated,
-        login,
-        logout,
-        loading,
-        user,
-        userRoles,
-        isLogout,
-      }}
-    >
+    <AuthContext.Provider value={{ accessToken, rememberToken, login, logout, user }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = (): AuthContextType => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};

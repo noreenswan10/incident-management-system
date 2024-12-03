@@ -1,28 +1,31 @@
 "use client";
 import { useAuth } from "@/context/authcontext";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FaXmark } from "react-icons/fa6";
 
+const NoAccess = dynamic(() => import("@/components/noaccess"));
+
 export default function AddIncident() {
   const [category, setCategory] = useState<string>("");
   const [content, setContent] = useState<string>("");
-  const { isAuthenticated, loading, isLogout }: any = useAuth();
+  const { accessToken } = useAuth();
   const router = useRouter();
-
-  useEffect(() => {
-    if (!isAuthenticated && !loading) {
-      return router.push("/login");
+  
+    useEffect(() => {
+      if (!accessToken) {
+        router.push("/login");
+      }
+    }, [accessToken, router]);
+  
+    if (!accessToken) {
+      return (
+        <>
+          <NoAccess />
+        </>
+      );
     }
-  }, [isAuthenticated, loading, router]);
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (!isAuthenticated && !isLogout) {
-    return <div>Youre not allowed to access this page.</div>;
-  }
   return (
     <div className="flex flex-col mt-5 ml-5">
       <div className="flex w-1/4 items-start justify-between">
