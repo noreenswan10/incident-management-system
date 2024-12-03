@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
 export default function RegistrationForm() {
-    const [firstName, setFirstName] = useState<string>("");
-    const [middleName, setMiddleName] = useState<string>("");
-    const [lastName, setLastName] = useState<string>("");
+    const [firstName, setfirstName] = useState<string>("");
+    const [middleName, setmiddleName] = useState<string>("");
+    const [lastName, setlastName] = useState<string>("");
     const [email, setEmail] = useState<string>("");
     const [username, setUsername] = useState<string>('');
     const [phoneNumber, setPhoneNumber] = useState<string>("");
@@ -20,7 +20,6 @@ export default function RegistrationForm() {
     const handleRegister = async (e: FormEvent) => {
       e.preventDefault();
     
-      // Assuming registrationSchema is a zod schema or similar
       const result = registrationSchema.safeParse({
         firstName,
         middleName,
@@ -39,51 +38,65 @@ export default function RegistrationForm() {
           errorMessages[err.path[0]] = err.message;
         });
         setErrors(errorMessages);
-      } else {
-        try {
-          const response = await fetchAPI('/auth/register', {
-            method: 'POST',
-            body: JSON.stringify({
-              firstName,
-              middleName,
-              lastName,
-              email,
-              phoneNumber,
-              address,
-              password,
-              confirmPassword,
-            }),
-          });
+        return;
+      }
     
-          if (response.ok) {
-            const data = await response.json();
-            router.push('/login');
-            console.log('Registration successful', data);
-            setErrors({});
-          } else {
-            const errorData = await response.json();
-            setErrors({ server: errorData.message || 'Registration failed. Please try again.' });
-          }
-        } catch (error) {
-          console.error('Error registering', error);
-          setErrors({ server: 'Registration failed. Please try again.' });
+      try {
+        const response = await fetch('http://136.239.196.178:5004/api/v1/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            firstName,
+            middleName,
+            lastName,
+            email,
+            username,
+            phoneNumber,
+            address,
+            password,
+            confirmPassword,
+          }),
+          mode: 'cors', // Ensure the correct CORS policy is applied
+          credentials: 'same-origin', // or 'include' for cross-origin cookies
+        });
+    
+        const responseBody = await response.json(); // Parse the response body
+    
+        // Log the response for debugging
+        console.log('Response Body:', responseBody);
+    
+        if (!response.ok) {
+          setErrors({ server: responseBody.message || 'Registration failed. Please try again.' });
+          throw new Error(responseBody.message || 'Registration failed. Please try again.');
         }
+    
+        router.push('/login');
+        console.log('Registration successful', responseBody);
+        setErrors({});
+      } catch (error:any) {
+        console.error('Error registering:', error);
+        setErrors({ server: error.message || 'Registration failed. Please try again.' });
       }
     };
+    
+    
+    
 
     return(
         <div className="w-1/4">
       <form onSubmit={handleRegister}>
         <div className="flex flex-col w-full mb-3">
-          <label htmlFor="FirstName" className="font-semibold">
+          <label htmlFor="firstName" className="font-semibold">
             First Name
           </label>
           <input
             type="text"
-            name="FirstName"
-            id="FirstName"
+            name="firstName"
+            id="firstName"
             value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
+            onChange={(e) => setfirstName(e.target.value)}
             className="border border-[#333] p-2 rounded-xl"
           />
           {errors.firstName && (
@@ -91,15 +104,15 @@ export default function RegistrationForm() {
           )}
         </div>
         <div className="flex flex-col w-full mb-3">
-          <label htmlFor="MiddleName" className="font-semibold">
+          <label htmlFor="middleName" className="font-semibold">
             Middle Name
           </label>
           <input
             type="text"
-            name="MiddleName"
-            id="MiddleName"
+            name="middleName"
+            id="middleName"
             value={middleName}
-            onChange={(e) => setMiddleName(e.target.value)}
+            onChange={(e) => setmiddleName(e.target.value)}
             className="border border-[#333] p-2 rounded-xl"
           />
           {errors.middleName && (
@@ -107,15 +120,15 @@ export default function RegistrationForm() {
           )}
         </div>
         <div className="flex flex-col w-full mb-3">
-          <label htmlFor="MiddleName" className="font-semibold">
+          <label htmlFor="middleName" className="font-semibold">
             Last Name
           </label>
           <input
             type="text"
-            name="LastName"
-            id="LastName"
+            name="lastName"
+            id="lastName"
             value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
+            onChange={(e) => setlastName(e.target.value)}
             className="border border-[#333] p-2 rounded-xl"
           />
           {errors.lastName && (
@@ -123,13 +136,13 @@ export default function RegistrationForm() {
           )}
         </div>
         <div className="flex flex-col w-full mb-3">
-          <label htmlFor="Email" className="font-semibold">
+          <label htmlFor="email" className="font-semibold">
             Email
           </label>
           <input
             type="text"
-            name="Email"
-            id="Email"
+            name="email"
+            id="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="border border-[#333] p-2 rounded-xl"
@@ -139,13 +152,13 @@ export default function RegistrationForm() {
           )}
         </div>
         <div className="flex flex-col w-full mb-3">
-          <label htmlFor="Username" className="font-semibold">
+          <label htmlFor="username" className="font-semibold">
             Username
           </label>
           <input
             type="text"
-            name="Username"
-            id="Username"
+            name="username"
+            id="username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             className="border border-[#333] p-2 rounded-xl"
@@ -155,13 +168,13 @@ export default function RegistrationForm() {
           )}
         </div>
         <div className="flex flex-col w-full mb-3">
-          <label htmlFor="PhoneNumber" className="font-semibold">
+          <label htmlFor="phoneNumber" className="font-semibold">
             Phone Number
           </label>
           <input
             type="text"
-            name="PhoneNumber"
-            id="PhoneNumber"
+            name="phoneNumber"
+            id="phoneNumber"
             value={phoneNumber}
             onChange={(e) => setPhoneNumber(e.target.value)}
             className="border border-[#333] p-2 rounded-xl"
@@ -171,13 +184,13 @@ export default function RegistrationForm() {
           )}
         </div>
         <div className="flex flex-col w-full mb-3">
-          <label htmlFor="Address" className="font-semibold">
+          <label htmlFor="address" className="font-semibold">
             Address
           </label>
           <input
             type="text"
-            name="Address"
-            id="Address"
+            name="address"
+            id="address"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             className="border border-[#333] p-2 rounded-xl"
@@ -187,13 +200,13 @@ export default function RegistrationForm() {
           )}
         </div>
         <div className="flex flex-col w-full mb-3">
-          <label htmlFor="Password" className="font-semibold">
+          <label htmlFor="password" className="font-semibold">
             Password
           </label>
           <input
             type="password"
             name="Password"
-            id="Password"
+            id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="border border-[#333] p-2 rounded-xl"
@@ -203,19 +216,19 @@ export default function RegistrationForm() {
           )}
         </div>
         <div className="flex flex-col w-full mb-3">
-          <label htmlFor="Cpassword" className="font-semibold">
+          <label htmlFor="confirmPassword" className="font-semibold">
             Confirm Password
           </label>
           <input
             type="password"
-            name="Cpassword"
-            id="Cpassword"
+            name="confirmPassword"
+            id="confirmPassword"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             className="border border-[#333] p-2 rounded-xl"
           />
-          {errors.cpassword && (
-            <p className="text-red-600 text-sm">{errors.password}</p>
+          {errors.confirmPassword && (
+            <p className="text-red-600 text-sm">{errors.confirmPassword}</p>
           )}
         </div>
         <button type="submit" className="bg-green-700 text-white mt-2 py-3 rounded-full font-semibold w-full active:scale-95 hover:bg-green-900">

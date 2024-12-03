@@ -1,7 +1,14 @@
 export interface AuthContextType {
-  accessToken: string | null;
-  rememberToken: string | null;
+  isAuthenticated: boolean;
+  isLogout: boolean;
+  // accessToken: string | null;
+  // rememberToken: string | null;
   login: (email: string, password: string) => void;
   logout: () => void;
   user: any | null;
+  loading: boolean;
+  userRoles: any;
+  hasUserRole: boolean;
+  hasTechnicianRole: boolean;
+  hasAdminRole: boolean;
 }

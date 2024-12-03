@@ -10,21 +10,21 @@ import { FaCheck } from "react-icons/fa";
 const NoAccess = dynamic(() => import("@/components/noaccess"));
 
 export default function IncidentReport() {
-  const { accessToken } = useAuth();
+  const { isAuthenticated, loading, isLogout }: any = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!accessToken) {
-      router.push("/login");
+    if (!isAuthenticated && !loading) {
+      return router.push("/login");
     }
-  }, [accessToken, router]);
+  }, [isAuthenticated, loading, router]);
 
-  if (!accessToken) {
-    return (
-      <>
-        <NoAccess />
-      </>
-    );
+  if (loading) {
+    return 'Loading...';
+  }
+
+  if (!isAuthenticated && !isLogout) {
+    return <NoAccess/>;
   }
   
   return (

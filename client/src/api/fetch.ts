@@ -8,6 +8,7 @@ const fetchAPI = async (url: string, options: RequestInit = {}) => {
         'Content-Type': 'application/json',
         ...options.headers,
       },
+      mode: 'cors'
     });
     
     if (!response.ok) {

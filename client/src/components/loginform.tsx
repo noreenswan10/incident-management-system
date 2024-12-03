@@ -1,63 +1,77 @@
 'use client'
-import { useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/authcontext";
-import { accountdata } from "@/data/accountdata";
 
 export default function LoginForm() {
-  const [email, setEmail] = useState<string>('');
+  const [usernameOrEmail, setUsernameOrEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
-  const { login } = useAuth();
   const router = useRouter();
+  const [errors, setErrors] = useState<any>({});
+  const { login, isAuthenticated }: any = useAuth();
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  // useEffect(()=> {
+  //   if (isAuthenticated){
+  //     return router.push('/user');
+  //   }
+  // }, [isAuthenticated, router]);
+
+  const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
+    setLoading(true);
 
-    if (!email || !password) {
-      setErrorMessage('Both fields are required.');
+    if (!usernameOrEmail || !password) {
+      setErrors({ server: 'Please fill in both username/email and password.' });
       return;
     }
-
-    login(email, password);
-
-    const user = fetchUserByEmail(email);
-
-    if (user) {
-      if (user.password === password) {
-        login(email,password)
-
-      if (user.role === "User") {
-        router.push("/user");
-      } else if (user.role === "Admin") {
-        router.push("/admin");
-      } else if (user.role === "Technician"){
-        router.push("/technician")
-      } else {
-        return <>Not valid role.</>
+  
+    try {
+      const response = await fetch('http://136.239.196.178:5004/api/v1/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          usernameOrEmail,
+          password,
+        }),
+        mode: 'cors',
+        credentials: 'same-origin',
+      });
+  
+      const responseBody = await response.json();
+      login(responseBody.accessToken, responseBody.rememberToken)
+  
+      console.log('Login Response:', responseBody);
+      console.log('Login successful', responseBody);
+      setErrors({});
+  
+      if (!response.ok) {
+        setErrors({ server: responseBody.message || 'Login failed. Please check your credentials and try again.' });
+        throw new Error(responseBody.message || 'Login failed. Please try again.');
       }
+  
+    } catch (error:any) {
+      console.error('Error logging in:', error);
+      setErrors({ server: error.message || 'An unexpected error occurred. Please try again.' });
+    } finally{
+      setLoading(false);
     }
-  } else {
-      setErrorMessage("Invalid credentials.");
-    }
-  };
-
-  const fetchUserByEmail = (email: string) => {
-
-    return accountdata.find(user => user.email === email);
   };
 
   return (
     <div className="w-1/4">
       <form onSubmit={handleLogin} className="flex flex-col w-full">
         <div className="flex flex-col w-full mb-3">
-          <label htmlFor="email" className="font-semibold">Email</label>
+          <label htmlFor="usernameOrEmail" className="font-semibold">Username Or Email</label>
           <input
             type="text"
-            name="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            name="usernameOrEmail"
+            id="usernameOrEmail"
+            value={usernameOrEmail}
+            onChange={(e) => setUsernameOrEmail(e.target.value)}
             className="border border-[#333] p-2 rounded-xl"
           />
         </div>
@@ -78,7 +92,7 @@ export default function LoginForm() {
           type="submit"
           className="bg-blue-700 text-white mt-2 py-3 rounded-full font-semibold w-full active:scale-95 hover:bg-blue-900"
         >
-          LOG IN
+          {loading ? 'LOGGING IN' : 'LOG IN'}
         </button>
       </form>
       {errorMessage && <p className="text-red-600 text-sm mt-2">{errorMessage}</p>}
