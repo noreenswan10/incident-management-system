@@ -1,25 +1,28 @@
 'use client'
 import { useAuth } from "@/context/authcontext";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
+const NoAccess = dynamic(() => import('@/components/noaccess'))
+
 export default function Page() {
-    const { isAuthenticated, loading, isLogout }: any = useAuth();
-    const router = useRouter();
-  
-    useEffect(() => {
-      if (!isAuthenticated && !loading) {
-        return router.push("/login");
+      const { accessToken } = useAuth();
+      const router = useRouter();
+    
+      useEffect(() => {
+        if (!accessToken) {
+          router.push("/login");
+        }
+      }, [accessToken, router]);
+    
+      if (!accessToken) {
+        return (
+            <>
+            <NoAccess/>
+            </>
+        );
       }
-    }, [isAuthenticated, loading, router]);
-  
-    if (loading) {
-      return <div>Loading...</div>;
-    }
-  
-    if (!isAuthenticated && !isLogout) {
-      return <div>Youre not allowed to access this page.</div>;
-    }
     return(
         <div className="flex justify-center mt-20">
             <p className="text-3xl font-semibold">Welcome to Admin Panel of Incident Manangement System</p>

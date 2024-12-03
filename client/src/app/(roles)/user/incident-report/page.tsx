@@ -1,34 +1,38 @@
-'use client'
+"use client";
 import { useAuth } from "@/context/authcontext";
 import { incidentreport } from "@/data/incidentreport";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { FaCheck } from "react-icons/fa";
 
+const NoAccess = dynamic(() => import("@/components/noaccess"));
+
 export default function IncidentReport() {
-  const { isAuthenticated, loading, isLogout }: any = useAuth();
+  const { accessToken } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!isAuthenticated && !loading) {
-      return router.push("/login");
+    if (!accessToken) {
+      router.push("/login");
     }
-  }, [isAuthenticated, loading, router]);
+  }, [accessToken, router]);
 
-  if (loading) {
-    return <div>Loading...</div>;
+  if (!accessToken) {
+    return (
+      <>
+        <NoAccess />
+      </>
+    );
   }
-
-  if (!isAuthenticated && !isLogout) {
-    return <div>Youre not allowed to access this page.</div>;
-  }
+  
   return (
     <div className="pt-5">
-      <Link href='/user/add-incident'>
-      <button className="py-2 px-5 bg-green-600 text-white active:scale-95 rounded-full font-semibold">
-        ADD INCIDENT
-      </button>
+      <Link href="/user/add-incident">
+        <button className="py-2 px-5 bg-green-600 text-white active:scale-95 rounded-full font-semibold">
+          ADD INCIDENT
+        </button>
       </Link>
       <table className="min-w-full table-auto border-collapse">
         <thead>

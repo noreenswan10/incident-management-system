@@ -1,26 +1,29 @@
 'use client'
 import { useAuth } from "@/context/authcontext";
 import { incidentreport } from "@/data/incidentreport";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
+const NoAccess = dynamic(() => import('@/components/noaccess'))
+
 export default function IncidentReport() {
-  const { isAuthenticated, loading, isLogout }: any = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!isAuthenticated && !loading) {
-      return router.push("/login");
+    const { accessToken } = useAuth();
+    const router = useRouter();
+  
+    useEffect(() => {
+      if (!accessToken) {
+        router.push("/login");
+      }
+    }, [accessToken, router]);
+  
+    if (!accessToken) {
+      return (
+          <>
+          <NoAccess/>
+          </>
+      );
     }
-  }, [isAuthenticated, loading, router]);
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (!isAuthenticated && !isLogout) {
-    return <div>Youre not allowed to access this page.</div>;
-  }
   return (
     <div>
       <table className="min-w-full table-auto border-collapse">

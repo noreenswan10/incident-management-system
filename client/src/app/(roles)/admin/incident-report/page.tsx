@@ -1,26 +1,29 @@
 'use client'
 import { useAuth } from "@/context/authcontext";
 import { incidentreport } from "@/data/incidentreport";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
+const NoAccess = dynamic(() => import('@/components/noaccess'))
+
 export default function IncidentReport() {
-  const { isAuthenticated, loading, isLogout }: any = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!isAuthenticated && !loading) {
-      return router.push("/login");
-    }
-  }, [isAuthenticated, loading, router]);
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (!isAuthenticated && !isLogout) {
-    return <div>Youre not allowed to access this page.</div>;
-  }
+        const { accessToken } = useAuth();
+        const router = useRouter();
+      
+        useEffect(() => {
+          if (!accessToken) {
+            router.push("/login");
+          }
+        }, [accessToken, router]);
+      
+        if (!accessToken) {
+          return (
+              <>
+              <NoAccess/>
+              </>
+          );
+        }
   return (
     <div>
       <table className="min-w-full table-auto border-collapse">
@@ -60,10 +63,7 @@ export default function IncidentReport() {
               </td>
               <td className="px-6 py-4 text-sm">
                 <button className="text-blue-500 hover:text-blue-700 focus:outline-none">
-                  Edit
-                </button>
-                <button className="text-red-500 hover:text-red-700 focus:outline-none ml-4">
-                  Delete
+                  View
                 </button>
               </td>
             </tr>

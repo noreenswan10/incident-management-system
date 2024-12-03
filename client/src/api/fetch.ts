@@ -1,4 +1,4 @@
-const BASE_URL = process.env.NEST_BACKEND_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const fetchAPI = async (url: string, options: RequestInit = {}) => {
   try {
